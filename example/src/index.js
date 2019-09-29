@@ -1,9 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import App from './App'
+
 const main = async () => {
   ReactDOM.render(
-    <h1>hello!</h1>,
+    <App />,
     document.getElementById('app')
   )
 }
