@@ -11,8 +11,14 @@ import {
   withProps
 } from 'recompose'
 
+// Spread initialProps into props.
+const withInitialProps = withProps(({ initialProps = {} }) => initialProps)
+
 export default (App) => {
   const { getInitialProps = _.noop } = App
+
+  const isBrowser = typeof window !== 'undefined'
+  if (!isBrowser) return withInitialProps(App)
 
   const enhance = compose(
     withState('initialProps', 'setInitialProps', null),
@@ -23,7 +29,7 @@ export default (App) => {
         setInitialProps(initialProps)
       }
     }),
-    withProps(({ initialProps = {} }) => initialProps),
+    withInitialProps,
     branch(
       ({ initialProps }) => !initialProps,
       renderComponent(() => null),

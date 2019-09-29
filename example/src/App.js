@@ -7,6 +7,12 @@ import styles from './App.pcss'
 
 import resolveGetInitialProps from './resolveGetInitialProps'
 
+import {
+  compose,
+  hoistStatics,
+  renderComponent
+} from 'recompose'
+
 const App = ({ joke }) => {
   return (
     <h1 className={styles.title}>{joke}</h1>
@@ -19,4 +25,9 @@ App.getInitialProps = async () => {
   return { joke }
 }
 
-export default hot(module)(resolveGetInitialProps(App))
+const enhance = compose(
+  hot(module),
+  resolveGetInitialProps
+)
+
+export default hoistStatics(renderComponent(enhance(App)))(App)
