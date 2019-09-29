@@ -1,9 +1,13 @@
 import React from 'react'
 import { hot } from 'react-hot-loader'
 
+import styles from './App.pcss'
+
+console.log(styles)
+
 const App = () => {
   return (
-    <h1>hello!</h1>
+    <h1 className={styles.title}>hello!</h1>
   )
 }
 
