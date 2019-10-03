@@ -3,7 +3,7 @@ module.exports = {
   plugins: {
     'postcss-modules': {
       globalModulePaths: [
-        'app.pcss'
+        'global.pcss'
       ]
     },
     tailwindcss: true,

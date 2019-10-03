@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "parcel ./example/src/index.html",
-    "server": "node -r esm ./src/index.js"
+    "build": "parcel build ./example/src/index.html",
+    "server": "node -r @babel/register -r esm ./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,9 @@
     "@babel/core": "^7.6.2",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.6.2",
     "async-exit-hook": "^2.0.1",
     "loud-rejection": "^2.2.0",
     "parcel-bundler": "^1.12.3",

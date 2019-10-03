@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import './app.pcss'
+import './global.pcss'
 
 import App from './App'
 
