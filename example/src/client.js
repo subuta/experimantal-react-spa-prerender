@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom'
 import App from './App'
 
 const main = () => {
-  ReactDOM.render(
+  ReactDOM.hydrate(
     <App />,
-    document.getElementById('app')
+    document.querySelector('#app')
   )
 }
 

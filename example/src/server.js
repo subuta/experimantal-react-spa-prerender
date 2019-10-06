@@ -16,9 +16,9 @@ import serve from 'koa-static'
 
 import React from 'react'
 
-import App from './src/App'
+import App from './App'
 
-import { prerender } from '../src/server'
+import { prerender } from '../../src/server'
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
@@ -39,18 +39,7 @@ app.use(async (ctx, next) => {
   if (ctx.url !== '/') return
 
   // Render App
-  const content = await prerender(App, ctx)
-
-  ctx.body = source`
-    <html>
-      <link rel='stylesheet' href='/server.css'>
-      <body>
-        ${content}
-      </body>
-    </html>
-  `
-
-  return next()
+  ctx.body = await prerender(App, ctx)
 })
 
 app.listen(port, () => {

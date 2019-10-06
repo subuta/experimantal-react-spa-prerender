@@ -1,7 +1,12 @@
 import _ from 'lodash'
 
 import React from 'react'
-import { renderToString } from 'react-dom/server'
+import {
+  renderToString,
+  renderToStaticMarkup
+} from 'react-dom/server'
+
+import { INITIAL_PROPS_KEY } from './config'
 
 import ssrPrepass from 'react-ssr-prepass'
 
@@ -19,8 +24,22 @@ export default async (App, ctx) => {
     }
   )
 
-  // Render App
-  return renderToString(
+  const app = renderToString(
     <App initialProps={ctx.state.initialProps} />
+  )
+
+  // Render App
+  return renderToStaticMarkup(
+    <html>
+      <head>
+        <link rel='stylesheet' href='/client.css' />
+      </head>
+      <body>
+        <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
+
+        <script dangerouslySetInnerHTML={{ __html: `window.${INITIAL_PROPS_KEY} = ${JSON.stringify(ctx.state.initialProps)};` }} />
+        <script src='/client.js' />
+      </body>
+    </html>
   )
 }

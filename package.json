@@ -3,13 +3,7 @@
   "version": "1.0.0",
   "description": "React-based SPA app prerenderer.",
   "main": "src/index.js",
-  "scripts": {
-    "start": "parcel ./example/src/index.html",
-    "start:server": "node ./dist/index.js",
-    "build": "parcel build ./example/src/index.html",
-    "build:server": "parcel build --target node ./src/index.js",
-    "server": "run-s build:server start:server"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/subuta/experimantal-react-spa-prerender.git"
