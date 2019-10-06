@@ -5,9 +5,13 @@ import fetch from 'isomorphic-unfetch'
 
 import styles from './App.pcss'
 
-import { compose } from 'recompose'
+import {
+  compose,
+  hoistStatics,
+  renderComponent
+} from 'recompose'
 
-import { resolveGetInitialProps } from '../../src'
+import { resolveGetInitialProps } from '../../src/client'
 
 import './global.pcss'
 
@@ -16,11 +20,11 @@ const enhance = compose(
   resolveGetInitialProps
 )
 
-const App = enhance(({ joke }) => {
+const App = ({ joke }) => {
   return (
     <h1 className={styles.title}>{joke}</h1>
   )
-})
+}
 
 App.getInitialProps = async () => {
   const jokes = await fetch(`http://api.icndb.com/jokes/2`).then((res) => res.json())
@@ -28,4 +32,4 @@ App.getInitialProps = async () => {
   return { joke }
 }
 
-export default App
+export default hoistStatics(renderComponent(enhance(App)))(App)

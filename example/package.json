@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "parcel ./example/src/index.html",
+    "start": "parcel ./src/index.html",
     "start:server": "node ./dist/server.js",
-    "build": "parcel build ./example/src/index.html",
+    "build": "parcel build ./src/index.html",
     "build:server": "parcel build --target node ./server.js",
     "server": "run-s build:server start:server"
   },

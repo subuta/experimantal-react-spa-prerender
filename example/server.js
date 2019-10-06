@@ -18,7 +18,7 @@ import React from 'react'
 
 import App from './src/App'
 
-import { prerender } from '../'
+import { prerender } from '../src/server'
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
