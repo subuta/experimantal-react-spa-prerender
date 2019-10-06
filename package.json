@@ -30,29 +30,22 @@
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
-    "async-exit-hook": "^2.0.1",
-    "loud-rejection": "^2.2.0",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.3",
-    "postcss-modules": "^1.4.1",
-    "postcss-nested": "^4.1.2",
-    "tailwindcss": "^1.1.2"
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
   },
   "dependencies": {
     "@babel/runtime": "^7.6.2",
     "@hot-loader/react-dom": "^16.9.0",
-    "common-tags": "^1.8.0",
     "esm": "^3.2.25",
     "isomorphic-unfetch": "^3.0.0",
-    "koa": "^2.8.2",
-    "koa-body": "^4.1.1",
-    "koa-logger": "^3.2.1",
-    "koa-static": "^5.0.0",
     "lodash": "^4.17.15",
-    "react": "^16.10.1",
-    "react-dom": "^16.10.1",
     "react-hot-loader": "^4.12.14",
     "react-ssr-prepass": "^1.0.7",
     "recompose": "^0.30.0"
+  },
+  "peerDependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
   }
 }

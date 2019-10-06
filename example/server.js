@@ -43,7 +43,8 @@ app.use(async (ctx, next) => {
 
   ctx.body = source`
     <html>
-      <link rel="stylesheet" href="/server.css"><body>
+      <link rel='stylesheet' href='/server.css'>
+      <body>
         ${content}
       </body>
     </html>
