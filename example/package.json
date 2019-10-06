@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "parcel ./example/src/index.html",
+    "start:server": "node ./dist/server.js",
+    "build": "parcel build ./example/src/index.html",
+    "build:server": "parcel build --target node ./server.js",
+    "server": "run-s build:server start:server"
   },
   "alias": {
     "react-dom": "@hot-loader/react-dom"

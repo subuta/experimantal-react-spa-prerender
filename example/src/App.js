@@ -5,7 +5,7 @@ import fetch from 'isomorphic-unfetch'
 
 import styles from './App.pcss'
 
-import resolveGetInitialProps from './resolveGetInitialProps'
+import { resolveGetInitialProps } from '../../src'
 
 import {
   compose,
