@@ -1,6 +1,8 @@
 import _ from 'lodash'
 
 import React from 'react'
+import { Helmet } from 'react-helmet'
+
 import {
   renderToString,
   renderToStaticMarkup
@@ -28,11 +30,26 @@ export default async (App, ctx) => {
     <App initialProps={ctx.state.initialProps} />
   )
 
+  const helmet = Helmet.renderStatic()
+
+  const head = (
+    <>
+      {helmet.base.toComponent()}
+      {helmet.link.toComponent()}
+      {helmet.meta.toComponent()}
+      {helmet.script.toComponent()}
+      {helmet.style.toComponent()}
+      {helmet.title.toComponent()}
+    </>
+  )
+
   // Render App
   return renderToStaticMarkup(
     <html>
       <head>
         <link rel='stylesheet' href='/client.css' />
+
+        {head}
       </head>
       <body>
         <div id='app' dangerouslySetInnerHTML={{ __html: app }} />

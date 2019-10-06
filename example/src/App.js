@@ -1,6 +1,8 @@
 import React from 'react'
 import { hot } from 'react-hot-loader'
 
+import { Helmet } from 'react-helmet'
+
 import fetch from 'isomorphic-unfetch'
 
 import styles from './App.pcss'
@@ -22,7 +24,13 @@ const enhance = compose(
 
 const App = ({ joke }) => {
   return (
-    <h1 className={styles.title}>{joke}</h1>
+    <>
+      <Helmet>
+        <title>{joke || 'default'}</title>
+      </Helmet>
+
+      <h1 className={styles.title}>{joke}</h1>
+    </>
   )
 }
 

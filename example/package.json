@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "parcel ./src/index.js",
-    "start:server": "node ./dist/server.js",
+    "start": "node ./dist/server.js",
     "build": "run-p build:*",
     "build:client": "parcel build ./src/client.js",
     "build:server": "parcel build --target node src/server.js",
@@ -28,15 +27,16 @@
   "dependencies": {
     "@babel/runtime": "^7.6.2",
     "@hot-loader/react-dom": "^16.9.0",
-    "react": "^16.10.1",
-    "react-dom": "^16.10.1",
-    "react-hot-loader": "^4.12.14",
     "async-exit-hook": "^2.0.1",
-    "loud-rejection": "^2.2.0",
     "common-tags": "^1.8.0",
     "koa": "^2.8.2",
     "koa-body": "^4.1.1",
     "koa-logger": "^3.2.1",
-    "koa-static": "^5.0.0"
+    "koa-static": "^5.0.0",
+    "loud-rejection": "^2.2.0",
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1",
+    "react-helmet": "^5.2.1",
+    "react-hot-loader": "^4.12.14"
   }
 }
