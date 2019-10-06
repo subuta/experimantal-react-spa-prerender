@@ -2,12 +2,13 @@
   "name": "experimantal-react-spa-prerender",
   "version": "1.0.0",
   "description": "React-based SPA app prerenderer.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "parcel ./example/src/index.html",
     "start:server": "node ./dist/index.js",
     "build": "parcel build ./example/src/index.html",
     "build:server": "parcel build --target node ./src/index.js",
+    "build:server2": "parcel build --target node --out-dir distc ./example/src/App.js",
     "server": "node -r @babel/register -r esm ./src/index.js"
   },
   "repository": {
@@ -53,7 +54,6 @@
     "react-dom": "^16.10.1",
     "react-hot-loader": "^4.12.14",
     "react-ssr-prepass": "^1.0.7",
-    "recompose": "^0.30.0",
-    "unstated": "^2.1.1"
+    "recompose": "^0.30.0"
   }
 }

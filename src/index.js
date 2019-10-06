@@ -17,27 +17,12 @@ import serve from 'koa-static'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
 
-import App from '../example/src/App'
+const App = require('../distc/App').default
 
 import ssrPrepass from 'react-ssr-prepass'
 
-import { Provider, Subscribe, Container } from 'unstated'
-
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
-
-class InitialPropsContainer extends Container {
-  constructor (initialProps) {
-    super()
-    this.state = {
-      initialProps: initialProps || null
-    }
-  }
-
-  setInitialProps (initialProps) {
-    this.setState({ initialProps })
-  }
-}
 
 const ROOT_DIR = path.resolve(__dirname, '../')
 const DIST_DIR = path.resolve(ROOT_DIR, './dist')
@@ -67,20 +52,9 @@ app.use(async (ctx, next) => {
     }
   )
 
-  const initialPropsContainer = new InitialPropsContainer(ctx.state.initialProps)
-
   // Render App
   const content = renderToString(
-    <Provider inject={[initialPropsContainer]}>
-      <Subscribe to={[InitialPropsContainer]}>
-        {ipc => {
-          const initialProps = ipc.state.initialProps || {}
-          return (
-            <App initialProps={initialProps} />
-          )
-        }}
-      </Subscribe>
-    </Provider>
+    <App initialProps={ctx.state.initialProps} />
   )
 
   ctx.body = source`
