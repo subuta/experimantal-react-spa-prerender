@@ -1,11 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { BrowserRouter } from 'react-router-dom'
+
 import App from './App'
 
 const main = () => {
   ReactDOM.hydrate(
-    <App />,
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
     document.querySelector('#app')
   )
 }

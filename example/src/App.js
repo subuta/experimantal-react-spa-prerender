@@ -1,43 +1,33 @@
 import React from 'react'
 import { hot } from 'react-hot-loader'
 
-import { Helmet } from 'react-helmet'
+import { Switch, Route, Link } from 'react-router-dom'
 
-import fetch from 'isomorphic-unfetch'
+import { compose } from 'recompose'
 
-import styles from './App.pcss'
-
-import {
-  compose,
-  hoistStatics,
-  renderComponent
-} from 'recompose'
-
-import { resolveGetInitialProps } from '../../src/client'
+import Joke from './routes/joke'
 
 import './global.pcss'
 
 const enhance = compose(
-  hot(module),
-  resolveGetInitialProps
+  hot(module)
 )
 
-const App = ({ joke }) => {
+export default enhance(({ initialProps }) => {
   return (
     <>
-      <Helmet>
-        <title>{joke || 'default'}</title>
-      </Helmet>
+      <header>
+        <Link to='/joke/1'>/joke/1</Link>
+        <Link to='/joke/2'>/joke/2</Link>
+        <Link to='/joke/3'>/joke/3</Link>
+      </header>
 
-      <h1 className={styles.title}>{joke}</h1>
+      <Switch>
+        {/* Separate Route component for force-re-mount (only meaningful for demo purpose) */}
+        <Route exact path='/joke/1' render={() => <Joke key={1} initialProps={initialProps} />} />
+        <Route exact path='/joke/2' render={() => <Joke key={2} initialProps={initialProps} />} />
+        <Route exact path='/joke/3' render={() => <Joke key={3} initialProps={initialProps} />} />
+      </Switch>
     </>
   )
-}
-
-App.getInitialProps = async () => {
-  const jokes = await fetch(`http://api.icndb.com/jokes/2`).then((res) => res.json())
-  const { joke } = jokes.value
-  return { joke }
-}
-
-export default hoistStatics(renderComponent(enhance(App)))(App)
+})

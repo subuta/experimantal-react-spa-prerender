@@ -35,10 +35,22 @@ export default (App) => {
         const { setInitialProps } = this.props
 
         // Early return if initialProps already exists(passed from server).
-        if (this.props.initialProps) return
+        if (this.props.initialProps) {
+          // Clear global initialProps for trigger getInitialProps at next componentDidMount call.
+          delete window[INITIAL_PROPS_KEY]
+          return
+        }
 
-        const initialProps = await getInitialProps() || {}
+        const initialProps = await getInitialProps({ url: location.pathname }) || {}
+
+        // Suppress "Can't perform a React state update on an unmounted component" error.
+        if (this.unmounted) return
+
         setInitialProps(initialProps)
+      },
+
+      componentWillUnmount () {
+        this.unmounted = true
       }
     }),
     withInitialProps,

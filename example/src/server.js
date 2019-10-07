@@ -10,13 +10,13 @@ import logger from 'koa-logger'
 
 import path from 'path'
 
-import { source } from 'common-tags'
-
 import serve from 'koa-static'
 
 import React from 'react'
 
 import App from './App'
+
+import { StaticRouter } from 'react-router'
 
 import { prerender } from '../../src/server'
 
@@ -36,10 +36,16 @@ app.use(logger())
 app.use(koaBody())
 
 app.use(async (ctx, next) => {
-  if (ctx.url !== '/') return
+  if (!_.startsWith(ctx.url, '/joke')) return
 
   // Render App
-  ctx.body = await prerender(App, ctx)
+  ctx.body = await prerender((
+    ({ initialProps }) => (
+      <StaticRouter context={{ ctx }} location={ctx.url}>
+        <App initialProps={initialProps} />
+      </StaticRouter>
+    )
+  ), { url: ctx.url })
 })
 
 app.listen(port, () => {

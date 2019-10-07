@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node ./dist/server.js",
+    "start": "run-p start:*",
+    "start:server": "node ./dist/server.js",
     "build": "run-p build:*",
     "build:client": "parcel build ./src/client.js",
     "build:server": "parcel build --target node src/server.js",
@@ -37,6 +38,8 @@
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
     "react-helmet": "^5.2.1",
-    "react-hot-loader": "^4.12.14"
+    "react-hot-loader": "^4.12.14",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2"
   }
 }

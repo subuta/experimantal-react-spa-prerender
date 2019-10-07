@@ -13,21 +13,27 @@ import { INITIAL_PROPS_KEY } from './config'
 import ssrPrepass from 'react-ssr-prepass'
 
 export default async (App, ctx) => {
+  if (!React.isValidElement(App)) {
+    App = <App />
+  }
+
+  let initialProps = {}
+
   // Pre-render App for data fetching.
   await ssrPrepass(
-    <App />,
+    App,
     // Custom visitor function of react-ssr-prepass for allowing next.js style data fetching.
     (element, instance) => {
       if (_.get(element, 'type.getInitialProps')) {
-        return element.type.getInitialProps(ctx, { hoge: 'fuga' }).then((initialProps) => {
-          ctx.state.initialProps = initialProps
+        return element.type.getInitialProps(ctx).then((data) => {
+          initialProps = data
         })
       }
     }
   )
 
   const app = renderToString(
-    <App initialProps={ctx.state.initialProps} />
+    React.cloneElement(App, { initialProps })
   )
 
   const helmet = Helmet.renderStatic()
@@ -43,6 +49,8 @@ export default async (App, ctx) => {
     </>
   )
 
+  const initialPropsScript = `window.${INITIAL_PROPS_KEY} = ${JSON.stringify(initialProps)};`
+
   // Render App
   return renderToStaticMarkup(
     <html>
@@ -54,7 +62,7 @@ export default async (App, ctx) => {
       <body>
         <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
 
-        <script dangerouslySetInnerHTML={{ __html: `window.${INITIAL_PROPS_KEY} = ${JSON.stringify(ctx.state.initialProps)};` }} />
+        <script dangerouslySetInnerHTML={{ __html: initialPropsScript }} />
         <script src='/client.js' />
       </body>
     </html>
