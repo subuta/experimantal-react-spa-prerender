@@ -15,13 +15,10 @@ import { INITIAL_PROPS_KEY } from './config'
 
 const isBrowser = typeof window !== 'undefined'
 
-// Spread initialProps into props.
-const withInitialProps = withProps(({ initialProps = {} }) => initialProps)
-
 export default (App) => {
   const { getInitialProps = _.noop } = App
 
-  if (!isBrowser) return withInitialProps(App)
+  if (!isBrowser) return App
 
   const enhance = compose(
     withState('initialProps', 'setInitialProps', () => {
@@ -53,7 +50,6 @@ export default (App) => {
         this.unmounted = true
       }
     }),
-    withInitialProps,
     branch(
       ({ initialProps }) => !initialProps,
       renderComponent(() => null),
