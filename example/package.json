@@ -10,6 +10,7 @@
     "build:server": "parcel build --target node src/server.js",
     "server": "run-s build:server start:server",
     "watch:client": "parcel watch ./src/client.js",
+    "spa": "parcel ./src/index.html",
     "dev": "run-p watch:client server"
   },
   "alias": {

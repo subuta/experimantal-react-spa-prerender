@@ -6,7 +6,16 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 
 const main = () => {
-  ReactDOM.hydrate(
+  const $app = document.querySelector('#app')
+
+  let render = ReactDOM.render
+
+  // Switch to hydrate SSR Enabled.
+  if ($app.hasChildNodes()) {
+    render = ReactDOM.hydrate
+  }
+
+  render(
     <BrowserRouter>
       <App />
     </BrowserRouter>,
