@@ -1,6 +1,9 @@
 import 'loud-rejection/register'
 import exitHook from 'async-exit-hook'
 
+import React from 'react'
+import { renderToString } from 'react-dom/server'
+
 import _ from 'lodash'
 
 import Koa from 'koa'
@@ -9,6 +12,7 @@ import koaBody from 'koa-body'
 import logger from 'koa-logger'
 
 import path from 'path'
+import fs from 'fs'
 
 import serve from 'koa-static'
 
@@ -18,11 +22,15 @@ import Bundler from 'parcel-bundler'
 
 import clearModule from 'clear-module'
 
+import { source } from 'common-tags'
+
+import cheerio from 'cheerio'
+
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
 
-// const ROOT_DIR = path.resolve(__dirname, '../')
-// const DIST_DIR = path.resolve(ROOT_DIR, './dist')
+const ROOT_DIR = path.resolve(__dirname, './')
+const DIST_DIR = path.resolve(ROOT_DIR, './dist')
 
 const app = new Koa()
 
@@ -35,7 +43,7 @@ const clientBundler = new Bundler(
 )
 
 const serverBundler = new Bundler(
-  './middleware.js',
+  './App.js',
   {
     watch: true,
     target: 'node',
@@ -43,43 +51,54 @@ const serverBundler = new Bundler(
   }
 )
 
-let bundle = null
-let serverMiddleware = (ctx, next) => next()
+let clientBundle = null
+let serverBundle = null
+let renderReactMiddleware = (ctx, next) => next()
+let $ = null
+
+// Force-reload module.
+const requireFresh = (moduleName) => {
+  clearModule(moduleName)
+  const m = require(moduleName)
+  return m.default || m
+}
 
 clientBundler.once('bundled', () => serverBundler.bundle())
 
 clientBundler.on('bundled', (compiledBundle) => {
-  bundle = compiledBundle
+  clientBundle = compiledBundle
+})
+
+clientBundler.on('buildEnd', () => {
+  $ = cheerio.load(fs.readFileSync(clientBundle.name, { encoding: 'utf8' }))
 })
 
 serverBundler.on('bundled', (compiledBundle) => {
-  // Force-reload module.
-  clearModule(compiledBundle.name)
-  const m = require(compiledBundle.name)
-  serverMiddleware = m.default || m
+  serverBundle = compiledBundle
+})
+
+serverBundler.on('buildEnd', () => {
+  const App = React.createElement(requireFresh(serverBundle.name))
+  renderReactMiddleware = (ctx, next) => {
+    if (ctx.url === '/react') {
+      $('#app').html(renderToString(App))
+      ctx.body = $.html()
+      return
+    }
+    return next()
+  }
 })
 
 const cbm = c2k(clientBundler.middleware())
-
-// app.use(serve(DIST_DIR))
 
 app.use(logger())
 
 // Parse body
 app.use(koaBody())
 
-app.use((ctx, next) => {
-  return serverMiddleware(ctx, next)
-})
+app.use(renderReactMiddleware)
 
 app.use(async (ctx, next) => {
-  if (bundle) {
-    const js = _.find(Array.from(bundle.childBundles), { type: 'js' })
-    const css = _.find(Array.from(js.childBundles), { type: 'css' })
-
-    // console.log('js = ', js.name)
-    // console.log('css = ', css.name)
-  }
   ctx.status = 200
   return cbm(ctx, next)
 })

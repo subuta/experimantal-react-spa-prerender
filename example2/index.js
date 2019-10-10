@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import './global.pcss'
+import App from './App'
 
 const main = () => {
   const $app = document.querySelector('#app')
@@ -14,7 +14,7 @@ const main = () => {
   }
 
   render(
-    <h1>Hello world from client</h1>,
+    <App />,
     document.querySelector('#app')
   )
 }

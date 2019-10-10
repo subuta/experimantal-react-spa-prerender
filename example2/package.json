@@ -23,6 +23,7 @@
     "@babel/runtime": "^7.6.2",
     "@hot-loader/react-dom": "^16.9.0",
     "async-exit-hook": "^2.0.1",
+    "cheerio": "^1.0.0-rc.3",
     "common-tags": "^1.8.0",
     "esm": "^3.2.25",
     "koa": "^2.8.2",
