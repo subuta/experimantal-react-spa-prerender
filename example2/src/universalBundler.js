@@ -1,19 +1,24 @@
-import React from 'react'
-
-import c2k from 'koa-connect'
-
 import fs from 'fs'
-
 import path from 'path'
 
 import compose from 'koa-compose'
-
 import serve from 'koa-static'
+import c2k from 'koa-connect'
 
-import createRenderToHtmlRenderer from './renderToHtmlRenderer'
+import cheerio from 'cheerio'
 
 const dev = process.env.NODE_ENV !== 'production'
 const cwd = process.cwd()
+
+// Default handler for renderToHtml.
+const defaultRenderToHtml = async ($, App, ctx) => {
+  const React = require('react')
+  const { renderToString } = require('react-dom/server')
+
+  $('#app').html(renderToString(React.createElement(App)))
+
+  return $.html()
+}
 
 // Force-reload module for development.
 const requireFresh = (moduleName) => {
@@ -24,28 +29,30 @@ const requireFresh = (moduleName) => {
 }
 
 class UniversalBundler {
-  constructor (htmlFile, appComponentFile, opts = {}) {
-    this.htmlFile = htmlFile
-    this.appComponentFile = appComponentFile
-
+  constructor (opts = {}, parcelOpts = {}) {
     this.opts = {
+      renderToHtml: defaultRenderToHtml,
+      ...opts
+    }
+
+    this.parcelOpts = {
       watch: dev,
       outDir: './dist',
-      ...opts
+      ...parcelOpts
     }
 
     this.clientBundle = null
     this.serverBundle = null
 
-    this.entryAssetsPath = path.join(cwd, this.opts.outDir, './entryAssets.json')
+    this.entryAssetsPath = path.join(cwd, this.parcelOpts.outDir, './entryAssets.json')
 
-    this.renderToHtmlRenderer = (ctx, next) => next()
+    this.renderToHtmlMiddleware = (ctx, next) => next()
   }
 
   initializeApp () {
     const entryAssets = require(this.entryAssetsPath)
-    const clientBundleName = path.resolve(cwd, entryAssets[this.htmlFile])
-    const serverBundleName = path.resolve(cwd, entryAssets[this.appComponentFile])
+    const clientBundleName = path.resolve(cwd, entryAssets[this.opts.entryHtml])
+    const serverBundleName = path.resolve(cwd, entryAssets[this.opts.entryAppComponent])
 
     this.initializeHtmlRenderer(clientBundleName, serverBundleName)
   }
@@ -54,19 +61,19 @@ class UniversalBundler {
     const Bundler = require('parcel-bundler')
 
     this.clientBundler = new Bundler(
-      this.htmlFile,
+      this.opts.entryHtml,
       {
-        watch: this.opts.watch,
-        outDir: path.join(this.opts.outDir, './client')
+        watch: this.parcelOpts.watch,
+        outDir: path.join(this.parcelOpts.outDir, './client')
       }
     )
 
     this.serverBundler = new Bundler(
-      this.appComponentFile,
+      this.opts.entryAppComponent,
       {
-        watch: this.opts.watch,
+        watch: this.parcelOpts.watch,
         target: 'node',
-        outDir: path.join(this.opts.outDir, './server')
+        outDir: path.join(this.parcelOpts.outDir, './server')
       }
     )
 
@@ -83,10 +90,13 @@ class UniversalBundler {
     this.clientBundler.once('bundled', () => this.serverBundler.bundle())
   }
 
-  initializeHtmlRenderer (bundledHtmlFile, bundledAppComponentFile) {
-    const html = fs.readFileSync(bundledHtmlFile, { encoding: 'utf8' })
-    const App = React.createElement(requireFresh(bundledAppComponentFile))
-    this.renderToHtmlRenderer = createRenderToHtmlRenderer(html, App)
+  initializeHtmlRenderer (entryHtml, entryAppComponent) {
+    const $ = cheerio.load(fs.readFileSync(entryHtml, { encoding: 'utf8' }))
+    const App = requireFresh(entryAppComponent)
+    this.renderToHtmlMiddleware = async (ctx, next) => {
+      ctx.body = await this.opts.renderToHtml($, App, ctx)
+      return
+    }
   }
 
   // do bundle for production.
@@ -105,8 +115,8 @@ class UniversalBundler {
   dumpEntryAssets () {
     // Set entryAssets.json contents.
     const entryAssets = {
-      [this.htmlFile]: `./${path.relative(cwd, this.clientBundle.name)}`,
-      [this.appComponentFile]: `./${path.relative(cwd, this.serverBundle.name)}`
+      [this.entryHtml]: `./${path.relative(cwd, this.clientBundle.name)}`,
+      [this.entryAppComponent]: `./${path.relative(cwd, this.serverBundle.name)}`
     }
 
     // Write entryAssets.json for later use.
@@ -143,7 +153,7 @@ class UniversalBundler {
       if (ext && !(/^.html?$/.test(ext))) {
         return next()
       }
-      return this.renderToHtmlRenderer(ctx, next)
+      return this.renderToHtmlMiddleware(ctx, next)
     })
 
     if (dev) {
@@ -156,7 +166,7 @@ class UniversalBundler {
       })
     } else {
       // Just serve dist/client files, under the production env.
-      middleware.push(serve(path.join(this.opts.outDir, './client')))
+      middleware.push(serve(path.join(this.parcelOpts.outDir, './client')))
     }
 
     return compose(middleware)

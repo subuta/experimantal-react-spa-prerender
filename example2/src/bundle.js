@@ -1,8 +1,8 @@
 import UniversalBundler from './universalBundler'
 
-const bundler = new UniversalBundler(
-  './index.html',
-  './App.js'
-)
+const bundler = new UniversalBundler({
+  entryHtml: './index.html',
+  entryAppComponent: './App.js'
+})
 
 bundler.bundle()

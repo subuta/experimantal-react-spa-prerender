@@ -8,14 +8,26 @@ import logger from 'koa-logger'
 
 import UniversalBundler from './src/universalBundler'
 
+import React from 'react'
+import { renderToString } from 'react-dom/server'
+
 const port = parseInt(process.env.PORT, 10) || 3000
 
 const app = new Koa()
 
-const bundler = new UniversalBundler(
-  './index.html',
-  './App.js'
-)
+const bundler = new UniversalBundler({
+  entryHtml: './index.html',
+  entryAppComponent: './App.js',
+  renderToHtml: async ($, App, ctx) => {
+    // Change title.
+    $('title').text('Rendered at Server')
+
+    // Inject rendered html into container.
+    $('#app').html(renderToString(React.createElement(App)))
+
+    return $.html()
+  }
+})
 
 app.use(logger())
 
