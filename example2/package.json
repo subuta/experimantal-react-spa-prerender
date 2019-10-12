@@ -5,6 +5,8 @@
   "scripts": {
     "build": "NODE_ENV=production node -r esm ./src/bundle.js",
     "start:dev": "node -r esm ./server.js",
+    "export:dev": "node -r esm ./src/export.js",
+    "export:prod": "NODE_ENV=production node -r esm ./src/export.js",
     "start:prod": "NODE_ENV=production node -r esm ./server.js",
     "start": "run-s start:prod",
     "dev": "run-s start:dev"

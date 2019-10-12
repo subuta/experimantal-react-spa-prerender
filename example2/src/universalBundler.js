@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 
+import _ from 'lodash'
+
 import compose from 'koa-compose'
 import serve from 'koa-static'
 import c2k from 'koa-connect'
@@ -36,7 +38,7 @@ class UniversalBundler {
     }
 
     this.parcelOpts = {
-      watch: dev,
+      watch: false,
       outDir: './dist',
       ...parcelOpts
     }
@@ -46,19 +48,23 @@ class UniversalBundler {
 
     this.entryAssetsPath = path.join(cwd, this.parcelOpts.outDir, './entryAssets.json')
 
-    this.renderToHtmlMiddleware = (ctx, next) => next()
+    this.doRenderToHtml = async (ctx, next) => next()
   }
 
-  initializeApp () {
+  initializeApp (onInitialized = _.noop) {
     const entryAssets = require(this.entryAssetsPath)
     const clientBundleName = path.resolve(cwd, entryAssets[this.opts.entryHtml])
     const serverBundleName = path.resolve(cwd, entryAssets[this.opts.entryAppComponent])
 
     this.initializeHtmlRenderer(clientBundleName, serverBundleName)
+    onInitialized()
   }
 
-  initializeBundler () {
+  initializeBundler (onInitialized = _.noop) {
     const Bundler = require('parcel-bundler')
+
+    // Ensure onInitialized called once.
+    onInitialized = _.once(onInitialized)
 
     this.clientBundler = new Bundler(
       this.opts.entryHtml,
@@ -88,35 +94,42 @@ class UniversalBundler {
 
     // Schedule server bundle after client bundle.
     this.clientBundler.once('bundled', () => this.serverBundler.bundle())
+
+    // Reload html renderer after every bundle.
+    this.serverBundler.on('buildEnd', () => {
+      this.initializeHtmlRenderer(this.clientBundle.name, this.serverBundle.name)
+      onInitialized()
+    })
   }
 
   initializeHtmlRenderer (entryHtml, entryAppComponent) {
     const $ = cheerio.load(fs.readFileSync(entryHtml, { encoding: 'utf8' }))
     const App = requireFresh(entryAppComponent)
-    this.renderToHtmlMiddleware = async (ctx, next) => {
+    this.doRenderToHtml = async (ctx, next) => {
       ctx.body = await this.opts.renderToHtml($, App, ctx)
       return
     }
   }
 
-  // do bundle for production.
-  async bundle () {
-    this.initializeBundler()
-    // Setup html renderer after first bundle end.
-    this.serverBundler.once('bundled', () => {
-      this.initializeHtmlRenderer(this.clientBundle.name, this.serverBundle.name)
-      this.dumpEntryAssets()
+  async bundle (dumpEntryAssets = !dev) {
+    // Do bundle immediately.
+    await new Promise((resolve) => {
+      this.initializeBundler(resolve)
+      // Start client bundle immediately.
+      this.clientBundler.bundle()
     })
 
-    // Start client bundle immediately.
-    this.clientBundler.bundle()
+    // Dump assets after bundle.
+    if (dumpEntryAssets) {
+      this.dumpEntryAssets()
+    }
   }
 
   dumpEntryAssets () {
     // Set entryAssets.json contents.
     const entryAssets = {
-      [this.entryHtml]: `./${path.relative(cwd, this.clientBundle.name)}`,
-      [this.entryAppComponent]: `./${path.relative(cwd, this.serverBundle.name)}`
+      [this.opts.entryHtml]: `./${path.relative(cwd, this.clientBundle.name)}`,
+      [this.opts.entryAppComponent]: `./${path.relative(cwd, this.serverBundle.name)}`
     }
 
     // Write entryAssets.json for later use.
@@ -127,23 +140,42 @@ class UniversalBundler {
     )
   }
 
-  initializeForMiddleware () {
-    // Listen for client/server bundle end if in development.
+  async render (urls) {
     if (dev) {
-      this.initializeBundler()
-      // Reload html renderer after every bundle.
-      this.serverBundler.on('buildEnd', () => {
-        this.initializeHtmlRenderer(this.clientBundle.name, this.serverBundle.name)
-      })
-      return
+      await this.bundle()
+    } else {
+      // Only initialize app(without bundler) in production.
+      this.initializeApp()
     }
 
+    let doSingleRender = false
+
+    if (!_.isArray(urls)) {
+      urls = [urls]
+      doSingleRender = true
+    }
+
+    const html = await Promise.all(_.map(urls, async (url) => {
+      const ctx = { url }
+      await this.doRenderToHtml(ctx, _.noop)
+      // Return generated body content.
+      return ctx.body
+    }))
+
+    return doSingleRender ? _.first(html) : html
+  }
+
+  initialize (...args) {
+    // Listen for client/server bundle end if in development.
+    if (dev) {
+      return this.initializeBundler(...args)
+    }
     // Only initialize app(without bundler) in production.
-    this.initializeApp()
+    this.initializeApp(...args)
   }
 
   middleware () {
-    this.initializeForMiddleware()
+    this.initialize()
 
     let middleware = []
 
@@ -153,7 +185,7 @@ class UniversalBundler {
       if (ext && !(/^.html?$/.test(ext))) {
         return next()
       }
-      return this.renderToHtmlMiddleware(ctx, next)
+      return this.doRenderToHtml(ctx, next)
     })
 
     if (dev) {

@@ -12,6 +12,7 @@ import React from 'react'
 import { renderToString } from 'react-dom/server'
 
 const port = parseInt(process.env.PORT, 10) || 3000
+const dev = process.env.NODE_ENV !== 'production'
 
 const app = new Koa()
 
@@ -27,7 +28,7 @@ const bundler = new UniversalBundler({
 
     return $.html()
   }
-})
+}, { watch: dev })
 
 app.use(logger())
 
