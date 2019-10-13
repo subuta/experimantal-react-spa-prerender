@@ -1,5 +1,5 @@
-# experimantal-react-spa-prerender
-React-based SPA app prerenderer.
+# parcel-u
+Parcel-based universal renderer for SPA(Single-page Application) project.
 
 ### How to develop
 
