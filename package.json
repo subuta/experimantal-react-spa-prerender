@@ -1,13 +1,22 @@
 {
-  "name": "experimantal-react-spa-prerender",
+  "name": "parcel-u",
   "version": "1.0.0",
-  "description": "React-based SPA app prerenderer.",
-  "main": "src/index.js",
+  "description": "Parcel-based universal renderer for SPA(Single-page Application) project.",
+  "main": "index.js",
+  "bin": {
+    "parcel-u": "bin/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/subuta/experimantal-react-spa-prerender.git"
   },
-  "keywords": [],
+  "keywords": [
+    "parcel",
+    "universal",
+    "spa",
+    "web",
+    "ssr"
+  ],
   "author": "subuta <shunta.3110@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -46,6 +55,7 @@
     "@hot-loader/react-dom": "^16.9.0",
     "arg": "^4.1.1",
     "async-exit-hook": "^2.0.1",
+    "chalk": "^2.4.2",
     "cheerio": "^1.0.0-rc.3",
     "common-tags": "^1.8.0",
     "esm": "^3.2.25",
@@ -59,6 +69,7 @@
     "koa-static": "^5.0.0",
     "lodash": "^4.17.15",
     "loud-rejection": "^2.2.0",
+    "mkdirp": "^0.5.1",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
     "react-helmet": "^5.2.1",

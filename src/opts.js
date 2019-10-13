@@ -7,7 +7,8 @@ import _ from 'lodash'
 
 const dev = process.env.NODE_ENV !== 'production'
 
-export default () => {
+// Parse common options from args and configuration.
+export default (argv) => {
   let cwd = process.cwd()
 
   const args = arg({
@@ -23,7 +24,7 @@ export default () => {
     '-w': '--watch',
     '-c': '--config',
     '-d': '--out-dir'
-  })
+  }, { argv, permissive: true })
 
   let opts = {}
 
