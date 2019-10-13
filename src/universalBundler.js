@@ -12,16 +12,6 @@ import cheerio from 'cheerio'
 const dev = process.env.NODE_ENV !== 'production'
 const cwd = process.cwd()
 
-// Default handler for renderToHtml.
-const defaultRenderToHtml = async ($, App, ctx) => {
-  const React = require('react')
-  const { renderToString } = require('react-dom/server')
-
-  $('#app').html(renderToString(React.createElement(App)))
-
-  return $.html()
-}
-
 // Force-reload module for development.
 const requireFresh = (moduleName) => {
   const clearModule = require('clear-module')
@@ -33,14 +23,14 @@ const requireFresh = (moduleName) => {
 class UniversalBundler {
   constructor (opts = {}, parcelOpts = {}) {
     this.opts = {
-      renderToHtml: defaultRenderToHtml,
+      entryComponent: 'App.js',
       ...opts
     }
 
     this.parcelOpts = {
       watch: false,
-      killWorkers: false,
       outDir: './dist',
+      killWorkers: false,
       ...parcelOpts
     }
 
@@ -52,10 +42,43 @@ class UniversalBundler {
     this.doRenderToHtml = async (ctx, next) => next()
   }
 
+  getEntryComponent () {
+    // Pass-through if entryComponent looks like relative path.
+    if (_.startsWith(this.opts.entryComponent, './')) return this.opts.entryComponent
+
+    // Omit extension even if specified.
+    return _.first(this.opts.entryComponent.split('.'))
+  }
+
+  findEntryComponentName (clientBundle) {
+    const entryComponentName = this.getEntryComponent()
+
+    // Resolve relative pathname if specified.
+    if (_.startsWith(entryComponentName, './')) {
+      return path.resolve(process.cwd(), entryComponentName)
+    }
+
+    const childBundles = Array.from(clientBundle.childBundles)
+
+    // Find entry js file.
+    const jsBundle = _.find(childBundles, { type: 'js' })
+    const depAssets = Array.from(jsBundle.entryAsset.depAssets.values())
+
+    // Find App.js file.
+    const entryAppComponent = _.find(depAssets, (asset) => {
+      // Ignore node_modules.
+      if (/node_modules\//.test(asset.name)) return
+      return _.startsWith(asset.basename, entryComponentName)
+    })
+
+    // Return found file name,
+    return entryAppComponent ? entryAppComponent.name : ''
+  }
+
   initializeApp (onInitialized = _.noop) {
     const entryAssets = require(this.entryAssetsPath)
     const clientBundleName = path.resolve(cwd, entryAssets[this.opts.entryHtml])
-    const serverBundleName = path.resolve(cwd, entryAssets[this.opts.entryAppComponent])
+    const serverBundleName = path.resolve(cwd, entryAssets[this.opts.entryComponent])
 
     this.initializeHtmlRenderer(clientBundleName, serverBundleName)
     onInitialized()
@@ -75,31 +98,38 @@ class UniversalBundler {
       }
     )
 
-    this.serverBundler = new Bundler(
-      this.opts.entryAppComponent,
-      {
-        ...this.parcelOpts,
-        target: 'node',
-        outDir: path.join(this.parcelOpts.outDir, './server')
-      }
-    )
+    const initServerBundle = (clientBundle) => {
+      const entryComponent = this.findEntryComponentName(clientBundle)
+
+      this.serverBundler = new Bundler(
+        entryComponent,
+        {
+          ...this.parcelOpts,
+          target: 'node',
+          outDir: path.join(this.parcelOpts.outDir, './server')
+        }
+      )
+
+      this.serverBundler.on('bundled', (compiledBundle) => {
+        this.serverBundle = compiledBundle
+      })
+
+      // Reload html renderer after every bundle.
+      this.serverBundler.on('buildEnd', () => {
+        this.initializeHtmlRenderer(this.clientBundle.name, this.serverBundle.name)
+        onInitialized()
+      })
+    }
 
     // Gather client/server bundle references.
     this.clientBundler.on('bundled', (compiledBundle) => {
       this.clientBundle = compiledBundle
-    })
-
-    this.serverBundler.on('bundled', (compiledBundle) => {
-      this.serverBundle = compiledBundle
+      initServerBundle(compiledBundle)
     })
 
     // Schedule server bundle after client bundle.
-    this.clientBundler.once('bundled', () => this.serverBundler.bundle())
-
-    // Reload html renderer after every bundle.
-    this.serverBundler.on('buildEnd', () => {
-      this.initializeHtmlRenderer(this.clientBundle.name, this.serverBundle.name)
-      onInitialized()
+    this.clientBundler.once('bundled', () => {
+      this.serverBundler.bundle()
     })
   }
 
@@ -127,7 +157,7 @@ class UniversalBundler {
   }
 
   async bundle (dumpEntryAssets = !dev) {
-    // Do bundle immediately.
+    // Do bundle and await.
     await new Promise((resolve) => {
       this.initializeBundler(resolve)
       // Start client bundle immediately.
@@ -146,7 +176,7 @@ class UniversalBundler {
     // Set entryAssets.json contents.
     const entryAssets = {
       [this.opts.entryHtml]: `./${path.relative(cwd, this.clientBundle.name)}`,
-      [this.opts.entryAppComponent]: `./${path.relative(cwd, this.serverBundle.name)}`
+      [this.opts.entryComponent]: `./${path.relative(cwd, this.serverBundle.name)}`
     }
 
     // Write entryAssets.json for later use.
@@ -182,13 +212,13 @@ class UniversalBundler {
     return doSingleRender ? _.first(html) : html
   }
 
-  initialize (...args) {
+  initialize () {
     // Listen for client/server bundle end if in development.
     if (dev) {
-      return this.initializeBundler(...args)
+      return this.initializeBundler()
     }
     // Only initialize app(without bundler) in production.
-    this.initializeApp(...args)
+    this.initializeApp()
   }
 
   middleware () {

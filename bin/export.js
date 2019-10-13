@@ -1,28 +1,12 @@
-import UniversalBundler from '../src/universalBundler'
-import { renderToString } from 'react-dom/server'
-import React from 'react'
+import { getOpts, UniversalBundler } from '..'
 
-const bundler = new UniversalBundler({
-  entryHtml: './example3/src/index.html',
-  entryAppComponent: './example3/src/App.js',
-  renderToHtml: async ($, App, ctx) => {
-    // Change title.
-    $('title').text(`${ctx.url} - Rendered at Server`)
+// Get opts from config or args for cli-usage.
+const { opts, parcelOpts } = getOpts()
 
-    // Inject rendered html into container.
-    $('#app').html(renderToString(React.createElement(App)))
+const bundler = new UniversalBundler(opts, parcelOpts)
 
-    return $.html()
-  }
-})
-
-const main = async () => {
-  const html = await bundler.render([
-    '/hoge',
-    '/fuga',
-    '/piyo',
-  ])
-  console.log('rendered!', html)
-}
-
-main()
+bundler.render([
+  '/hoge',
+  '/fuga',
+  '/piyo',
+])

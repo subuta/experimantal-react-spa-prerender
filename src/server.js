@@ -1,9 +1,18 @@
-import prerender from './prerender'
+// import prerender from './prerender'
+
+import getOpts from './opts'
+import UniversalBundler from './universalBundler'
 
 export {
-  prerender
+  // prerender
+
+  getOpts,
+  UniversalBundler
 }
 
 export default {
-  prerender
+  // prerender
+
+  getOpts,
+  UniversalBundler
 }

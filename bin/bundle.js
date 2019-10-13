@@ -1,8 +1,8 @@
-import UniversalBundler from '../src/universalBundler'
+import { getOpts, UniversalBundler } from '..'
 
-const bundler = new UniversalBundler({
-  entryHtml: './example3/src/index.html',
-  entryAppComponent: './example3/src/App.js',
-})
+// Get opts from config or args for cli-usage.
+const { opts, parcelOpts } = getOpts()
+
+const bundler = new UniversalBundler(opts, parcelOpts)
 
 bundler.bundle()

@@ -1,6 +1,9 @@
 import _ from 'lodash'
 
 import React from 'react'
+
+import { isElement, isValidElementType } from 'react-is'
+
 import { Helmet } from 'react-helmet'
 
 import {
@@ -13,7 +16,10 @@ import { INITIAL_PROPS_KEY } from './config'
 import ssrPrepass from 'react-ssr-prepass'
 
 export default async (App, ctx) => {
-  if (!React.isValidElement(App)) {
+  if (!isElement(App)) {
+    if (!isValidElementType(App)) {
+      throw new Error('App argument must be one of "React Component or Element"')
+    }
     App = <App />
   }
 
