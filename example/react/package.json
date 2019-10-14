@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "NODE_ENV=production parcel-u build ./src/index.html",
-    "start:dev": "parcel-u serve ./src/index.html",
-    "export:dev": "parcel-u export ./src/index.html -u /foo -u /bar -u /nested/baz",
-    "export:prod": "NODE_ENV=production parcel-u export ./src/index.html -u /foo -u /bar -u /nested/baz",
-    "start:prod": "NODE_ENV=production parcel-u serve ./src/index.html",
+    "build": "NODE_ENV=production parcel-u build src/index.html",
+    "start:dev": "parcel-u serve src/index.html",
+    "export:dev": "parcel-u export src/index.html -u /foo -u /bar -u /nested/baz",
+    "export:prod": "NODE_ENV=production parcel-u export src/index.html -u /foo -u /bar -u /nested/baz",
+    "start:prod": "NODE_ENV=production parcel-u serve src/index.html",
     "static": "cd ./dist/client && serve -l 4000",
     "start": "run-s start:prod",
     "dev": "run-s start:dev"
@@ -17,7 +17,8 @@
   },
   "private": true,
   "devDependencies": {
-    "@babel/core": "^7.6.2",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
     "clear-module": "^4.0.0",

@@ -14,7 +14,7 @@ import {
   renderComponent
 } from 'recompose'
 
-import { resolveGetInitialProps } from '../../../../src/client'
+import { resolveGetInitialProps } from '../../../../packages/parcel-u/src/client'
 
 const enhance = compose(
   resolveGetInitialProps

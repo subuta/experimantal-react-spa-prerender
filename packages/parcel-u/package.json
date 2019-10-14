@@ -4,7 +4,7 @@
   "description": "Parcel-based universal renderer for SPA(Single-page Application) project.",
   "main": "index.js",
   "bin": {
-    "parcel-u": "bin/index.js"
+    "parcel-u": "./bin/index.js"
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production node -r esm ./bin/bundle.js",
-    "start:dev": "node -r esm ./bin/server.js ./example3/src/index.html",
+    "start:dev": "node -r esm ./bin/server.js ../../example/react/src/index.html",
     "export:dev": "node -r esm ./bin/export.js",
     "export:prod": "NODE_ENV=production node -r esm ./bin/export.js",
     "start:prod": "NODE_ENV=production node -r esm ./bin/server.js",
@@ -70,8 +70,6 @@
     "lodash": "^4.17.15",
     "loud-rejection": "^2.2.0",
     "mkdirp": "^0.5.1",
-    "react": "^16.10.1",
-    "react-dom": "^16.10.1",
     "react-helmet": "^5.2.1",
     "react-hot-loader": "^4.12.14",
     "react-is": "^16.10.2",

@@ -18,7 +18,7 @@ import App from './App'
 
 import { StaticRouter } from 'react-router'
 
-import { prerender } from '../../src/server'
+import { prerender } from '../../packages/parcel-u/src/server'
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
