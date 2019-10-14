@@ -14,7 +14,7 @@ import {
   renderComponent
 } from 'recompose'
 
-import { resolveGetInitialProps } from '../../../../packages/parcel-u/src/client'
+import { resolveGetInitialProps } from 'parcel-u-react/client'
 
 const enhance = compose(
   resolveGetInitialProps
@@ -52,6 +52,7 @@ Joke.getInitialProps = async ({ url }) => {
   }
 
   const jokes = await cachedFetch(`http://api.icndb.com/jokes/${id}`)
+
   const { joke } = jokes.value
   return { joke }
 }

@@ -134,10 +134,14 @@ class UniversalBundler {
   }
 
   initializeHtmlRenderer (entryHtml, entryAppComponent) {
-    const $ = cheerio.load(fs.readFileSync(entryHtml, { encoding: 'utf8' }))
+    const html = fs.readFileSync(entryHtml, { encoding: 'utf8' })
     const App = requireFresh(entryAppComponent)
     this.doRenderToHtml = async (ctx, next) => {
+      // Instantiate cheerio instance at every request.
+      const $ = cheerio.load(html)
+
       ctx.body = await this.opts.renderToHtml($, App, ctx)
+
       return
     }
   }

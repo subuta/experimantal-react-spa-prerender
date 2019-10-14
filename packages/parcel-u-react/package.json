@@ -1,0 +1,47 @@
+{
+  "name": "parcel-u-react",
+  "version": "1.0.0",
+  "description": "React universal rendering helper for parcel-u",
+  "main": "lib/server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subuta/experimantal-react-spa-prerender.git"
+  },
+  "keywords": [
+    "parcel",
+    "universal",
+    "spa",
+    "web",
+    "ssr"
+  ],
+  "author": "subuta <shunta.3110@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/subuta/experimantal-react-spa-prerender/issues"
+  },
+  "homepage": "https://github.com/subuta/experimantal-react-spa-prerender#readme",
+  "scripts": {
+    "build": "babel src --out-dir lib",
+    "postinstall": "npm run build"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-react": "^7.0.0",
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.6.2",
+    "lodash": "^4.17.15",
+    "react-is": "^16.10.2",
+    "react-ssr-prepass": "^1.0.7"
+  },
+  "peerDependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
+  }
+}
