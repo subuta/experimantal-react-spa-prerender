@@ -17,6 +17,11 @@ Usage:
 
 Options:
     --help                      shows this help message
+    --entry-html                entry html file to bundle.
+    --entry-component           entry app component file name that might required at client.js (defaults to {bold "App.js"})
+    -w, --watch                 starts the bundler in watch mode
+    -c, --config                parcel-u configuration file name. (defaults to {bold "parcel-u.config.js"})
+    -d, --out-dir               set the output directory. (defaults to {bold "dist"})
     
 Commands:
     serve [options] [entryHtml]    starts server for universal-rendering

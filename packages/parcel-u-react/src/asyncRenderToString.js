@@ -3,7 +3,10 @@ const _ = require('lodash')
 const os = require('os')
 const React = require('react')
 
-const { isElement, isValidElementType } = require('react-is')
+const {
+  isElement,
+  isValidElementType
+} = require('react-is')
 
 const {
   renderToString
@@ -13,12 +16,11 @@ const { INITIAL_PROPS_KEY } = require('./config')
 
 const ssrPrepass = require('react-ssr-prepass')
 
-module.exports = async (App, ctx, optionalModules = {}) => {
-  // Optional dependencies passed from caller.
+module.exports = async ($, App, ctx, internalApi) => {
   const {
-    Helmet,
-    StaticRouter
-  } = optionalModules
+    dependsOn,
+    requireProjectDeps
+  } = internalApi
 
   if (!isElement(App)) {
     if (!isValidElementType(App)) {
@@ -29,8 +31,10 @@ module.exports = async (App, ctx, optionalModules = {}) => {
 
   let WrappedApp = ({ initialProps }) => React.cloneElement(App, { initialProps })
 
-  // Wrap App by react-router's StaticRouter if passed
-  if (StaticRouter) {
+  // Wrap App by react-router's StaticRouter if needed
+  if (dependsOn('react-router')) {
+    const { StaticRouter } = requireProjectDeps('react-router')
+
     WrappedApp = ({ initialProps }) => (
       <StaticRouter context={{ ctx }} location={ctx.url}>
         {React.cloneElement(App, { initialProps })}
@@ -61,9 +65,10 @@ module.exports = async (App, ctx, optionalModules = {}) => {
     `<script>${initialPropsScript}</script>`
   ]
 
-  // Do react-helmet head generation if passed.
-  // FIXME: No need to receive Helmet module from caller? :(
-  if (Helmet) {
+  // Do head content generation by react-helmet if needed.
+  if (dependsOn('react-helmet')) {
+    const { Helmet } = requireProjectDeps('react-helmet')
+
     const helmet = Helmet.renderStatic()
 
     head = _.concat(head, [
@@ -76,8 +81,13 @@ module.exports = async (App, ctx, optionalModules = {}) => {
     ])
   }
 
-  return {
-    app: appHtml,
-    head: _.compact(head).join(os.EOL)
-  }
+  head = _.compact(head).join(os.EOL)
+
+  // Inject rendered head.
+  $('head').append(head)
+
+  // Inject rendered html into container.
+  $('#app').html(appHtml)
+
+  return $.html()
 }

@@ -1,7 +1,8 @@
 import path from 'path'
 import fs from 'fs'
-import findUp from 'find-up'
 import arg from 'arg'
+
+import findUp from 'find-up'
 
 import _ from 'lodash'
 
@@ -14,6 +15,7 @@ export default (argv) => {
   const args = arg({
     // Args
     '--entry-html': String,
+    '--entry-component': String,
     '--config': String,
     '--out-dir': String,
 
@@ -30,6 +32,7 @@ export default (argv) => {
 
   let configPath = args['--config']
   let entryHtml = args['--entry-html'] || args['_'][0] || ''
+  let entryComponent = args['--entry-component']
 
   let outDir = args['--out-dir']
   let watch = args['--watch'] || dev
@@ -59,13 +62,19 @@ export default (argv) => {
   // Prefer cli-args over config.
   entryHtml = path.resolve(cwd, entryHtml || opts.entryHtml)
 
+  // Automatic config resolution based on entryHtml dir.
   if (!configPath) {
     configPath = findUp.sync('parcel-u.config.js', { cwd: path.dirname(entryHtml) })
-    if (!fs.existsSync(configPath)) throw new Error('Config file must be needed with config.renderToHtml option.')
-    opts = _.assign({}, require(path.resolve(cwd, configPath)))
+    if (fs.existsSync(configPath)) {
+      opts = _.assign({}, require(path.resolve(cwd, configPath)))
+    }
   }
 
   opts.entryHtml = entryHtml
+
+  if (entryComponent) {
+    opts.entryComponent = entryComponent
+  }
 
   return {
     opts,

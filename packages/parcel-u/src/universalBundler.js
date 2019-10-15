@@ -7,7 +7,10 @@ import compose from 'koa-compose'
 import serve from 'koa-static'
 import c2k from 'koa-connect'
 
+import resolve from 'resolve'
+
 import cheerio from 'cheerio'
+import findUp from 'find-up'
 
 const dev = process.env.NODE_ENV !== 'production'
 const cwd = process.cwd()
@@ -136,11 +139,37 @@ class UniversalBundler {
   initializeHtmlRenderer (entryHtml, entryAppComponent) {
     const html = fs.readFileSync(entryHtml, { encoding: 'utf8' })
     const App = requireFresh(entryAppComponent)
+
+    const pkgPath = findUp.sync('package.json', { cwd: path.dirname(entryHtml) })
+    if (!pkgPath) throw new Error('Package.json not found.')
+
+    // Fetch dependencies.
+    const pkg = require(pkgPath)
+    const deps = _.keys(pkg.dependencies)
+    const root = path.dirname(pkgPath)
+
+    const dependsOn = (r) => _.includes(deps, r)
+    const requireProjectDeps = (r) => require(resolve.sync(r, { basedir: root }))
+
+    const internalApi = { dependsOn, requireProjectDeps }
+
+    let renderToHtml = this.opts.renderToHtml
+
+    // Defaults to library preset, if no renderToHtml option passed
+    if (!renderToHtml) {
+      if (true) {
+      // If is react project and correct react preset found.
+      // if (dependsOn('react') && dependsOn('parcel-u-react')) {
+        const { asyncRenderToString } = requireProjectDeps('parcel-u-react/server')
+        renderToHtml = asyncRenderToString
+      }
+    }
+
     this.doRenderToHtml = async (ctx, next) => {
       // Instantiate cheerio instance at every request.
       const $ = cheerio.load(html)
 
-      ctx.body = await this.opts.renderToHtml($, App, ctx)
+      ctx.body = await renderToHtml($, App, ctx, internalApi)
 
       return
     }
