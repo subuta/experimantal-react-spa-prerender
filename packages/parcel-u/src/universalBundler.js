@@ -157,9 +157,8 @@ class UniversalBundler {
 
     // Defaults to library preset, if no renderToHtml option passed
     if (!renderToHtml) {
-      if (true) {
       // If is react project and correct react preset found.
-      // if (dependsOn('react') && dependsOn('parcel-u-react')) {
+      if (dependsOn('react') && dependsOn('parcel-u-react')) {
         const { asyncRenderToString } = requireProjectDeps('parcel-u-react/server')
         renderToHtml = asyncRenderToString
       }

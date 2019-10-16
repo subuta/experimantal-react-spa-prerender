@@ -1,14 +1,20 @@
 {
   "name": "parcel-u",
-  "version": "1.0.0",
+  "version": "0.9.2",
   "description": "Parcel-based universal renderer for SPA(Single-page Application) project.",
-  "main": "index.js",
+  "main": "src/index.js",
+  "files": [
+    "bin/**/*",
+    "lib/**/*",
+    "src/**/*",
+    "index.js"
+  ],
   "bin": {
     "parcel-u": "./bin/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/subuta/experimantal-react-spa-prerender.git"
+    "url": "git@github.com:subuta/parcel-u.git"
   },
   "keywords": [
     "parcel",
@@ -20,28 +26,23 @@
   "author": "subuta <shunta.3110@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/subuta/experimantal-react-spa-prerender/issues"
+    "url": "https://github.com/subuta/parcel-u/issues"
   },
-  "homepage": "https://github.com/subuta/experimantal-react-spa-prerender#readme",
+  "homepage": "https://github.com/subuta/parcel-u#readme",
   "alias": {
     "react-dom": "@hot-loader/react-dom"
   },
   "scripts": {
-    "build": "NODE_ENV=production node -r esm ./bin/bundle.js",
-    "start:dev": "node -r esm ./bin/server.js ../../example/react/src/index.html",
-    "export:dev": "node -r esm ./bin/export.js",
-    "export:prod": "NODE_ENV=production node -r esm ./bin/export.js",
-    "start:prod": "NODE_ENV=production node -r esm ./bin/server.js",
-    "start": "run-s start:prod",
-    "dev": "run-s start:dev"
+    "build": "babel src --out-dir lib",
+    "prepublish": "npm run build"
   },
   "devDependencies": {
+    "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
-    "clear-module": "^4.0.0",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.12.3",
     "postcss-modules": "^1.4.1",
@@ -67,6 +68,7 @@
     "koa-connect": "^2.0.1",
     "koa-logger": "^3.2.1",
     "koa-static": "^5.0.0",
+    "clear-module": "^4.0.0",
     "lodash": "^4.17.15",
     "loud-rejection": "^2.2.0",
     "mkdirp": "^0.5.1",
