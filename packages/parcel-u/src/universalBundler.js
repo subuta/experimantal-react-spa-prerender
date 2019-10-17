@@ -3,9 +3,8 @@ import path from 'path'
 
 import _ from 'lodash'
 
-import compose from 'koa-compose'
-import serve from 'koa-static'
-import c2k from 'koa-connect'
+import { compose } from 'compose-middleware'
+import serve from 'serve-static'
 
 import resolve from 'resolve'
 
@@ -42,7 +41,7 @@ class UniversalBundler {
 
     this.entryAssetsPath = path.join(cwd, this.parcelOpts.outDir, './entryAssets.json')
 
-    this.doRenderToHtml = async (ctx, next) => next()
+    this.doRenderToHtml = (req, res, next) => next()
   }
 
   getEntryComponent () {
@@ -164,13 +163,13 @@ class UniversalBundler {
       }
     }
 
-    this.doRenderToHtml = async (ctx, next) => {
+    this.doRenderToHtml = async (req, res) => {
       // Instantiate cheerio instance at every request.
       const $ = cheerio.load(html)
 
-      ctx.body = await renderToHtml($, App, ctx, internalApi)
+      const body = await renderToHtml($, App, req, internalApi)
 
-      return
+      res.end(body)
     }
   }
 
@@ -235,10 +234,20 @@ class UniversalBundler {
     }
 
     const html = await Promise.all(_.map(urls, async (url) => {
-      const ctx = { url }
-      await this.doRenderToHtml(ctx, _.noop)
+      let body = ''
+
+      // Simulate nodejs req/res.
+      const req = { url }
+      const res = {
+        end: (_body) => {
+          body = _body
+        }
+      }
+
+      await this.doRenderToHtml(req, res)
+
       // Return generated body content.
-      return ctx.body
+      return body
     }))
 
     return doSingleRender ? _.first(html) : html
@@ -258,23 +267,18 @@ class UniversalBundler {
 
     let middleware = []
 
-    middleware.push(async (ctx, next) => {
+    middleware.push((req, res, next) => {
       // Pass-through non html request.
-      const ext = path.extname(ctx.url)
+      const ext = path.extname(req.url)
       if (ext && !(/^.html?$/.test(ext))) {
         return next()
       }
-      return this.doRenderToHtml(ctx, next)
+      return this.doRenderToHtml(req, res, next)
     })
 
     if (dev) {
       // Use parcel middleware for dev.
-      const cbm = c2k(this.clientBundler.middleware())
-      middleware.push(async (ctx, next) => {
-        // Workaround for koa.
-        ctx.status = 200
-        return cbm(ctx, next)
-      })
+      middleware.push(this.clientBundler.middleware())
     } else {
       // Just serve dist/client files, under the production env.
       middleware.push(serve(path.join(this.parcelOpts.outDir, './client')))

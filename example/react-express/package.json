@@ -1,0 +1,32 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "NODE_ENV=production node -r esm ./build.js",
+    "start:dev": "node -r esm ./server.js",
+    "start:prod": "NODE_ENV=production node -r esm ./server.js",
+    "start": "npm run start:prod",
+    "dev": "npm run start:dev"
+  },
+  "alias": {
+    "react-dom": "@hot-loader/react-dom"
+  },
+  "private": true,
+  "devDependencies": {
+    "@babel/core": "^7.6.4"
+  },
+  "dependencies": {
+    "@hot-loader/react-dom": "^16.9.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "lodash": "^4.17.15",
+    "parcel-bundler": "^1.12.4",
+    "parcel-u": "^0.9.4",
+    "parcel-u-react": "^0.9.4",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.1",
+    "react-helmet": "^5.2.1",
+    "react-hot-loader": "^4.12.14"
+  }
+}

@@ -5,6 +5,7 @@ import Koa from 'koa'
 
 import koaBody from 'koa-body'
 import logger from 'koa-logger'
+import c2k from 'koa-connect'
 
 import chalk from 'chalk'
 import arg from 'arg'
@@ -46,10 +47,16 @@ export default (argv) => {
 
   app.use(logger())
 
-// Parse body
+  // Parse body
   app.use(koaBody())
 
-  app.use(bundler.middleware())
+  const bm = c2k(bundler.middleware())
+
+  app.use((ctx, next) => {
+    // Fix for parcel middleware.
+    ctx.status = 200
+    return bm(ctx, next)
+  })
 
   app.listen(port, () => {
     console.log(`🚀 Server ready at http://localhost:${port}`)

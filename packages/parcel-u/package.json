@@ -1,6 +1,6 @@
 {
   "name": "parcel-u",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Parcel-based universal renderer for SPA(Single-page Application) project.",
   "main": "src/index.js",
   "files": [
@@ -46,7 +46,9 @@
     "async-exit-hook": "^2.0.1",
     "chalk": "^2.4.2",
     "cheerio": "^1.0.0-rc.3",
+    "clear-module": "^4.0.0",
     "common-tags": "^1.8.0",
+    "compose-middleware": "^5.0.1",
     "esm": "^3.2.25",
     "find-up": "^4.1.0",
     "koa": "^2.8.2",
@@ -55,11 +57,11 @@
     "koa-connect": "^2.0.1",
     "koa-logger": "^3.2.1",
     "koa-static": "^5.0.0",
-    "clear-module": "^4.0.0",
     "lodash": "^4.17.15",
     "loud-rejection": "^2.2.0",
     "mkdirp": "^0.5.1",
     "parcel-bundler": "^1.12.3",
-    "resolve": "^1.12.0"
+    "resolve": "^1.12.0",
+    "serve-static": "^1.14.1"
   }
 }
