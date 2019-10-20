@@ -96,6 +96,7 @@ class UniversalBundler {
       this.opts.entryHtml,
       {
         ...this.parcelOpts,
+        cacheDir: path.join(cwd, '.cache/client'),
         outDir: path.join(this.parcelOpts.outDir, './client')
       }
     )
@@ -108,6 +109,7 @@ class UniversalBundler {
         {
           ...this.parcelOpts,
           target: 'node',
+          cacheDir: path.join(cwd, '.cache/server'),
           outDir: path.join(this.parcelOpts.outDir, './server')
         }
       )
@@ -167,7 +169,13 @@ class UniversalBundler {
       // Instantiate cheerio instance at every request.
       const $ = cheerio.load(html)
 
-      const body = await renderToHtml($, App, req, internalApi)
+      let body = ''
+
+      try {
+        body = await renderToHtml($, App, req, internalApi)
+      } catch (err) {
+        console.error('Caught error on renderToHtml, err = ', err)
+      }
 
       res.end(body)
     }

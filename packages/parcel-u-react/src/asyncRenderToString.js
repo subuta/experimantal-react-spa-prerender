@@ -44,18 +44,23 @@ module.exports = async ($, App, ctx, internalApi) => {
 
   let initialProps = {}
 
-  // Pre-render App for data fetching.
-  await ssrPrepass(
-    <WrappedApp />,
-    // Custom visitor function of react-ssr-prepass for allowing next.js style data fetching.
-    (element, instance) => {
-      if (_.get(element, 'type.getInitialProps')) {
-        return element.type.getInitialProps(ctx).then((data) => {
-          initialProps = data
-        })
+  try {
+    // Pre-render App for data fetching.
+    await ssrPrepass(
+      <WrappedApp />,
+      // Custom visitor function of react-ssr-prepass for allowing next.js style data fetching.
+      (element, instance) => {
+        if (_.get(element, 'type.getInitialProps')) {
+          return element.type.getInitialProps(ctx).then((data) => {
+            initialProps = data
+          })
+        }
       }
-    }
-  )
+    )
+  } catch (err) {
+    console.error('Caught error at getInitialProps, err =', err)
+    return $.html()
+  }
 
   const appHtml = renderToString(<WrappedApp initialProps={initialProps} />)
 

@@ -4,7 +4,6 @@ module.exports = {
     '@babel/preset-env'
   ],
   plugins: [
-    'react-hot-loader/babel',
     '@babel/plugin-transform-runtime',
     [
       '@babel/plugin-proposal-class-properties',
@@ -12,5 +11,12 @@ module.exports = {
         'loose': true
       }
     ]
+  ],
+  babelrcRoots: [
+    // Keep the root as a root
+    '.',
+    // Also consider monorepo packages "root" and load their .babelrc files.
+    './packages/*',
+    './example/*'
   ]
 }
