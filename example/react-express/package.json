@@ -20,7 +20,7 @@
     "@hot-loader/react-dom": "^16.9.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "parcel-bundler": "^1.12.4",
     "parcel-u": "^0.9.4",
     "parcel-u-react": "^0.9.4",
