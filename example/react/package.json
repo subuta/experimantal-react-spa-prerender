@@ -28,7 +28,7 @@
     "@babel/runtime": "^7.6.2",
     "@hot-loader/react-dom": "^16.9.0",
     "isomorphic-unfetch": "^3.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "parcel-bundler": "^1.12.4",
     "parcel-u": "^0.9.4",
     "parcel-u-react": "^0.9.4",
